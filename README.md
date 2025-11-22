@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Train Custom YOLO on Colab
 
 Notebook and helper utilities to fetch datasets, clean/relabel them, tile images, rebalance splits, and train YOLO models end to end.
