@@ -1,4 +1,4 @@
-# Train Custom YOLO on Colab
+# Train Custom YOLO model on Colab
 
 Notebook and helper utilities to fetch datasets, clean/relabel them, tile images, rebalance splits, and train YOLO models end to end.
 This is intended to help creating a YOLO-based machine learning model for animal detection and tracking using [`TRex`](https://trex.run/)
