@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Train Custom YOLO on Colab
 
 Notebook and helper utilities to fetch datasets, clean/relabel them, tile images, rebalance splits, and train YOLO models end to end.
@@ -18,7 +19,7 @@ Notebook and helper utilities to fetch datasets, clean/relabel them, tile images
 - **Evaluate & infer**: pick the best checkpoint by mAP, visualize predictions on validation images, and zip outputs for download.
 
 ## Utility modules
-All helpers live in `utils/` (importable as `train_custom_yolo` if placed on `sys.path`).
+All helpers live in `utils/` 
 
 - **Dataset ingestion (`utils/datasets.py`)**
   - `fetch_dataset` accepts `RoboflowSource`, `DriveSource`, or `ExampleSource` and normalizes the folder layout.
@@ -32,31 +33,20 @@ All helpers live in `utils/` (importable as `train_custom_yolo` if placed on `sy
   - Inspection: `summarize_classes`, `auto_select_allowed_ids`, `count_labels`, `check_dataset` for quick distribution checks.
   - YAML: `make_data_yaml` builds a contiguous `names` list for the filtered taxonomy.
 
-## Minimal code example
-```python
-from utils import (
-    DriveSource, fetch_dataset,
-    build_collapse_map, build_new_class_ids_from_yaml,
-    prepare_yolo_dataset, make_data_yaml, check_dataset,
-)
-
-# 1) Download data
-dataset_path = fetch_dataset(DriveSource(file_id="your_drive_file_id"))
-
-# 2) Collapse labels (optional)
-collapse_map = build_collapse_map([0, 1, 3])  # keep raw ids 0,1,3
-new_class_ids = {"shark": 0, "sting_ray": 1}
-
-# 3) Prepare + split
-prepare_yolo_dataset(
-    dataset_path, "prepared_dataset",
-    collapse_map={0: "sting_ray", 1: "sting_ray", 3: "shark"},
-    new_class_ids=new_class_ids,
-    do_tile=True, slice_wh=(640, 640), empty_tile_fraction=0.2,
-    do_rebalance=True, split=(0.7, 0.2, 0.1),
-)
-data_yaml = make_data_yaml("prepared_dataset", new_class_ids)
-check_dataset("prepared_dataset")
-```
 
 Run the notebook cells to follow the same flow with widgets, training commands, and evaluation plots.
+=======
+## Custom Training Google Colab Notebook
+
+This repository contains a Google Colab Notebook that can be used to train a custom YOLO model (_e.g._ object detection, pose, segmentation). 
+This is intended to help creating a YOLO-based machine learning model for animal detection and tracking using [`TRex`](https://trex.run/)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](
+https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb)
+
+This notebook can help with:
+
+	•	Adjust training parameters
+	•	Add custom functions
+	•	Extend functionality for your specific use case
+>>>>>>> d875ba582c932cc74c1b6565887f4a3b2c896b48
