@@ -3,9 +3,9 @@
 Notebook and helper utilities to fetch datasets, clean/relabel them, tile images, rebalance splits, and train YOLO models end to end.
 This is intended to help creating a YOLO-based machine learning model for animal detection and tracking using [`TRex`](https://trex.run/)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](
-https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb)
-
+<a href="https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb" target="_blank">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" width="220">
+</a>
 
 ## What you can do
 - Pull a dataset from Roboflow, a shared Google Drive zip, or the built-in Hexbugs example.
