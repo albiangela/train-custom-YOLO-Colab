@@ -4,7 +4,7 @@ This repository contains a Google Colab Notebook that can be used to train a cus
 This is intended to help creating a YOLO-based machine learning model for animal detection and tracking using [`TRex`](https://trex.run/)
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](
-https://github.com/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb)
+https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb)
 
 This notebook can help with:
 
