@@ -45,3 +45,7 @@ This notebook can help with:
 	•	Adjust training parameters
 	•	Add custom functions
 	•	Extend functionality for your specific use case
+
+
+## Creating an annotation dataset
+Information on how to create an annotation dataset can be found [here](https://github.com/albiangela/TRex-tutorials-data/blob/main/README.md#-training-a-custom-yolo-model)
