@@ -72,10 +72,42 @@ def _ensure_package(module: str, install_name: Optional[str] = None) -> None:
     """Ensure a Python package is available, installing it if necessary."""
     try:
         importlib.import_module(module)
+        return
     except ImportError:
-        package = install_name or module
-        print(f"📦 Installing {package} …")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        pass
+
+    package = install_name or module
+    print(f"📦 Installing {package} …")
+
+    # Special-case roboflow: normal install can fail on Colab due to pillow-avif-plugin build
+    if package == "roboflow":
+        # Install roboflow itself without deps, then install deps explicitly (excluding pillow-avif-plugin)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "--no-cache-dir", "roboflow", "--no-deps"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "--no-cache-dir",
+            "certifi",
+            "idna==3.7",
+            "cycler",
+            "kiwisolver>=1.3.1",
+            "matplotlib",
+            "numpy>=1.18.5",
+            "opencv-python-headless==4.10.0.84",
+            "Pillow>=7.1.2",
+            "pi-heif<2",
+            "pillow-heif",          # sometimes needed depending on roboflow version
+            "python-dateutil",
+            "python-dotenv",
+            "requests",
+            "six",
+            "urllib3>=1.26.6",
+            "tqdm>=4.41.0",
+            "PyYAML>=5.3.1",
+            "requests-toolbelt",
+            "filetype",
+        ])
+        return
+
+    # default behavior for other packages
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "--no-cache-dir", package])
 
 
 def _extract_drive_file_id(link: str) -> Optional[str]:
@@ -267,22 +299,28 @@ def fetch_dataset(
                 downloaded_path.rename(desired)
                 dataset_dir = desired
 
-    # elif isinstance(source, RoboflowSource):
-    #     _ensure_package("roboflow")
     elif isinstance(source, RoboflowSource):
+        _ensure_package("roboflow")
         try:
-            _ensure_package("roboflow")
-            from roboflow import Roboflow
-        except Exception as e:
+            from roboflow import Roboflow  # type: ignore
+        except (ModuleNotFoundError, ImportError) as e:
             if "pillow_avif" in str(e):
+                print("⚠️ Missing pillow_avif. Installing AVIF deps for Colab…")
                 subprocess.check_call(["apt-get", "update", "-y"])
                 subprocess.check_call(["apt-get", "install", "-y", "build-essential", "pkg-config", "libavif-dev"])
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "pip", "setuptools", "wheel"])
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "pillow-avif-plugin"])
-                from roboflow import Roboflow
+
+                import importlib
+                importlib.import_module("pillow_avif")
+                print("✅ pillow_avif import OK")
+                # In case roboflow was partially imported before:
+                import sys as _sys
+                for mod in ["roboflow", "PIL", "PIL.Image"]:
+                    _sys.modules.pop(mod, None)
+                from roboflow import Roboflow  # type: ignore
             else:
                 raise
-
-        from roboflow import Roboflow  # type: ignore
 
         print("🤖 Downloading dataset from Roboflow …")
         rf = Roboflow(api_key=source.api_key)
