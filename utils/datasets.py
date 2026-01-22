@@ -272,15 +272,16 @@ def fetch_dataset(
     elif isinstance(source, RoboflowSource):
         try:
             _ensure_package("roboflow")
-        except Exception:
-            # fallback without pillow-avif-plugin
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "roboflow", "--no-deps"])
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-U",
-                "certifi","idna==3.7","cycler","kiwisolver>=1.3.1","matplotlib","numpy>=1.18.5",
-                "opencv-python-headless==4.10.0.84","Pillow>=7.1.2","pi-heif<2","python-dateutil",
-                "python-dotenv","requests","six","urllib3>=1.26.6","tqdm>=4.41.0","PyYAML>=5.3.1",
-                "requests-toolbelt","filetype"
-            ])
+            from roboflow import Roboflow
+        except Exception as e:
+            if "pillow_avif" in str(e):
+                subprocess.check_call(["apt-get", "update", "-y"])
+                subprocess.check_call(["apt-get", "install", "-y", "build-essential", "pkg-config", "libavif-dev"])
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "pillow-avif-plugin"])
+                from roboflow import Roboflow
+            else:
+                raise
+
         from roboflow import Roboflow  # type: ignore
 
         print("🤖 Downloading dataset from Roboflow …")
