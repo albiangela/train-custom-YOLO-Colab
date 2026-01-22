@@ -137,7 +137,7 @@ def progress_callback(progress: TileProgress) -> None:
     else:
         print(
             f"📂 Scanning {progress.current_image_name} [{progress.current_set_name}] "
-            f"{progress.current_image_idx}/{progress.current_total_images}"
+            # f"{progress.current_image_idx}/{progress.current_total_images}"
         )
 
 
