@@ -222,6 +222,7 @@ def tile_with_yolo_tiler(
     include_empty: bool = True,
     negative_fraction: Optional[float] = None,
     random_seed: int = 0,
+    annotation_type: str = "object_detection",
 ) -> None:
     """Run `yolo_tiler` and post-process to normalize empty tiles."""
     if YoloTiler is None or TileConfig is None:
@@ -232,7 +233,7 @@ def tile_with_yolo_tiler(
         slice_wh=slice_wh,
         overlap_wh=overlap_wh,
         # input_ext=input_ext,
-        annotation_type="object_detection",
+        annotation_type=annotation_type,
         include_negative_samples=need_negatives,
         train_ratio=1.0,
         valid_ratio=0.0,
@@ -285,6 +286,7 @@ def prepare_yolo_dataset(
     remove_test: bool = False,
     seed: int = 0,
     clear_output: bool = True,
+    annotation_type: str = "object_detection",
 ) -> None:
     """End-to-end pipeline to prepare a YOLO dataset.
 
@@ -547,6 +549,7 @@ def prepare_yolo_dataset(
             include_empty=(include_empty_tiles if empty_tile_fraction is None else True),
             negative_fraction=empty_tile_fraction,
             random_seed=include_empty_tiles_seed,
+            annotation_type=annotation_type,
         )
         pool_dir = os.path.join(tiled_tmp, "train")
         prune_empty_labels(pool_dir, fraction=prune_empty_fraction, seed_=seed)
