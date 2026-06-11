@@ -697,8 +697,10 @@ def count_labels(label_dir: str):
     empty_count = 0
     total_files = 0
     for path in Path(label_dir).glob("*.txt"):
+        if path.name.startswith("._"):
+            continue
         total_files += 1
-        with path.open("r") as fh:
+        with path.open("r", errors="ignore") as fh:
             lines = [ln.strip() for ln in fh if ln.strip()]
         if not lines:
             empty_count += 1
