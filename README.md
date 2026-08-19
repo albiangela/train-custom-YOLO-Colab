@@ -3,22 +3,25 @@
 Notebook and helper utilities to fetch datasets, clean/relabel them, tile images, rebalance splits, and train YOLO models end to end.
 This is intended to help creating a YOLO-based machine learning model for animal detection and tracking using [`TRex`](https://trex.run/)
 
-<a href="https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-model-example.ipynb" target="_blank">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" width="220">
-</a>
+Choose one notebook:
+
+- **[Simple preparation](https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-simple.ipynb)** keeps all original label IDs/names and uses `dataset-fixer` to validate, split, export, and ZIP the training dataset.
+- **[Rename or merge labels](https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-rename-labels.ipynb)** adds a label-mapping window before the `dataset-fixer` split and canonical export.
+- **[Rename, merge, and tile](https://colab.research.google.com/github/albiangela/train-custom-YOLO-Colab/blob/main/Train-custom-YOLO-rename-labels-tiling.ipynb)** adds optional grid or coverage tiling after splitting and displays a compact preview of exported tiles.
 
 ## What you can do
 - Pull a dataset from Roboflow, a shared Google Drive zip, or the built-in Hexbugs example.
 - Collapse/rename annotation labels into a smaller taxonomy and auto-build a compact `data.yaml`.
 - Filter out sparse classes, prune empty labels/images, or rebalance the train/valid/test split.
-- Tile large images with `yolo-tiler`, optionally keep a fraction of empty tiles, and re-generate labels.
+- Validate, split, and export reproducible datasets with [`dataset-fixer`](https://github.com/mooch443/dataset-fixer).
+- Optionally tile large images after splitting, retain a chosen background fraction, and preview the exported tiles.
 - Summarize class counts, sanity-check splits, zip the prepared dataset, then launch Ultralytics YOLO training, validation, and inference cells.
 
 ## Notebook walkthrough
 - **Load data**: interactive widget picks Roboflow, Drive zip, or example; downloads/extracts into `/content/datasets`.
 - **(Optional) Rename labels**: set a `collapse_map` (`old_id -> new_name`) and `new_class_ids` (`new_name -> new_id`) to merge or drop classes before training.
 - **Auto-select classes**: inspect per-class prevalence and suggest `allowed_ids` based on thresholds.
-- **Prepare dataset**: run the pipeline to filter labels, prune empty files, tile images (if enabled), and export a clean pool or split set with a new `data.yaml`.
+- **Prepare dataset**: use `dataset-fixer` to validate, relabel when requested, split reproducibly, optionally tile, and export a canonical dataset with reports and a synchronized `data.yaml`.
 - **Train**: configure Ultralytics YOLO args (model checkpoint, epochs, image size, augmentation) and start training.
 - **Evaluate & infer**: pick the best checkpoint by mAP, visualize predictions on validation images, and zip outputs for download.
 

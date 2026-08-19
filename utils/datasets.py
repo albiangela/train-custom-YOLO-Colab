@@ -19,6 +19,8 @@ _DEFAULT_ROOT = Path("/content/datasets")
 _EXAMPLE_REPO = "https://github.com/albiangela/TRex-tutorials-data.git"
 _EXAMPLE_SUBDIR = Path("YOLO-models/hexbugs-annotation-dataset")
 _EXAMPLE_TARGET_NAME = "example_dataset"
+_MULTILABEL_EXAMPLE_SUBDIR = Path("YOLO-models/multilabel-example")
+_MULTILABEL_EXAMPLE_TARGET_NAME = "multilabel_example"
 
 
 @dataclass
@@ -50,6 +52,7 @@ class ExampleSource:
     """Built-in GitHub example dataset."""
 
     dataset_name: str = _EXAMPLE_TARGET_NAME
+    example_type: Literal["hexbugs", "multilabel"] = "hexbugs"
 
     kind: Literal["example"] = "example"
 
@@ -348,10 +351,15 @@ def fetch_dataset(
         tmp_dir = Path(tempfile.mkdtemp(prefix="example_repo_"))
         clone_dir = tmp_dir / "repo"
         subprocess.run(["git", "clone", _EXAMPLE_REPO, str(clone_dir)], check=True)
-        src_dataset = clone_dir / _EXAMPLE_SUBDIR
+        example_subdir = (
+            _MULTILABEL_EXAMPLE_SUBDIR
+            if source.example_type == "multilabel"
+            else _EXAMPLE_SUBDIR
+        )
+        src_dataset = clone_dir / example_subdir
         if not src_dataset.exists():
             raise FileNotFoundError(
-                f"Expected example dataset at {_EXAMPLE_SUBDIR}, but it was not found."
+                f"Expected example dataset at {example_subdir}, but it was not found."
             )
         target = root / source.dataset_name
         shutil.rmtree(target, ignore_errors=True)
@@ -419,6 +427,7 @@ def launch_dataset_selector(
     target_globals: dict | None = None,
     *,
     dataset_root: Path | str = _DEFAULT_ROOT,
+    include_multilabel_example: bool = False,
 ) -> None:
     """Render an interactive widget to choose and fetch a dataset."""
     try:
@@ -433,12 +442,16 @@ def launch_dataset_selector(
     style = {"description_width": "120px"}
     layout_full = widgets.Layout(width="100%")
 
-    source_dropdown = widgets.Dropdown(
-        options=(
+    source_options = [
             ("Roboflow snippet", "roboflow"),
             ("Google Drive link", "drive"),
-            ("Example dataset", "example"),
-        ),
+            ("Example dataset (Hexbugs)", "example"),
+    ]
+    if include_multilabel_example:
+        source_options.append(("Multiabel example", "multilabel_example"))
+
+    source_dropdown = widgets.Dropdown(
+        options=source_options,
         value="roboflow",
         description="Source:",
         style=style,
@@ -481,11 +494,17 @@ def launch_dataset_selector(
         "The example dataset will be downloaded from "
         "<code>albiangela/TREx-tutorials-data</code>."
     )
+    multilabel_example_box = widgets.HTML(
+        "The multilabel example will be downloaded from "
+        "<code>YOLO-models/multilabel-example</code> in "
+        "<code>albiangela/TREx-tutorials-data</code>."
+    )
 
     forms = {
         "roboflow": roboflow_box,
         "drive": drive_box,
         "example": example_box,
+        "multilabel_example": multilabel_example_box,
     }
 
     for box in forms.values():
@@ -532,6 +551,11 @@ def launch_dataset_selector(
                         raise ValueError("Could not extract a file id from the provided link.")
                     dataset_name = drive_name_input.value.strip() or None
                     source = DriveSource(file_id=file_id, name_hint=dataset_name)
+                elif source_dropdown.value == "multilabel_example":
+                    source = ExampleSource(
+                        dataset_name=_MULTILABEL_EXAMPLE_TARGET_NAME,
+                        example_type="multilabel",
+                    )
                 else:
                     source = ExampleSource()
 
@@ -555,6 +579,7 @@ def launch_dataset_selector(
             roboflow_box,
             drive_box,
             example_box,
+            multilabel_example_box,
             action_btn,
             status,
         ]

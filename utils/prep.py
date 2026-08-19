@@ -287,6 +287,8 @@ def prepare_yolo_dataset(
     seed: int = 0,
     clear_output: bool = True,
     annotation_type: str = "object_detection",
+    source_yaml: str | None = None,
+    write_yaml: bool = True,
 ) -> None:
     """End-to-end pipeline to prepare a YOLO dataset.
 
@@ -303,6 +305,13 @@ def prepare_yolo_dataset(
     allowed_ids
         Optional subset of class ids to keep *before* collapsing. If omitted
         but ``collapse_map`` is provided, the keys of ``collapse_map`` are used.
+    source_yaml
+        Original dataset YAML. When supplied, a matching ``data.yaml`` is
+        written into ``out_dir``. Original names are preserved when labels are
+        unchanged; collapsed names are used when labels are remapped.
+    write_yaml
+        Write ``out_dir/data.yaml`` after preparation. This is enabled by
+        default when ``source_yaml`` is supplied.
     """
 
     # Canonicalise label-mapping parameters up-front.
@@ -572,6 +581,32 @@ def prepare_yolo_dataset(
         print("📦 No rebalance — exporting single unsplit pool to out_dir")
         shutil.copytree(os.path.join(pool_dir, "images"), os.path.join(out_dir, "images"))
         shutil.copytree(os.path.join(pool_dir, "labels"), os.path.join(out_dir, "labels"))
+
+    if write_yaml and source_yaml:
+        original_names = _load_yaml_names(source_yaml)
+        if original_names is None:
+            raise ValueError(f"No valid 'names' entry found in {source_yaml}")
+
+        if do_change_labels and collapse_map and new_class_ids:
+            yaml_class_ids = dict(new_class_ids)
+        elif do_change_labels and effective_allowed_ids is not None:
+            # Filtering without remapping is safe only when IDs remain a
+            # contiguous prefix; otherwise YOLO's names list would be wrong.
+            kept = sorted(effective_allowed_ids)
+            if kept != list(range(len(kept))):
+                raise ValueError(
+                    "Filtering classes without remapping leaves non-contiguous IDs. "
+                    "Provide collapse_map/new_class_ids or keep all original classes."
+                )
+            yaml_class_ids = {
+                (original_names[idx] if idx < len(original_names) else f"class_{idx}"): idx
+                for idx in kept
+            }
+        else:
+            yaml_class_ids = {name: idx for idx, name in enumerate(original_names)}
+
+        yaml_path = make_data_yaml(out_dir, yaml_class_ids, has_test=None)
+        print(f"🧾 data.yaml written to: {yaml_path}")
 
     print(f"✅ Final dataset written to: {out_dir}")
 
